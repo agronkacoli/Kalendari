@@ -1,46 +1,526 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalendar Rezervimesh Makine (Me Emër Automjeti)</title>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
-<style>
-  #calendar { max-width: 600px; margin: 40px auto; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulatori juaj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg-color: #0f172a;
+      --panel-color: rgba(15, 23, 42, 0.9);
+      --button-bg: rgba(148, 163, 184, 0.18);
+      --button-hover: rgba(148, 163, 184, 0.35);
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5f5;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      color: var(--text-primary);
+    }
+
+    .app-container {
+      width: min(420px, 90vw);
+      backdrop-filter: blur(24px);
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.75));
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45);
+      padding: 28px 28px 32px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.55);
+      padding: 10px 14px;
+      border-radius: 18px;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18), 0 8px 20px rgba(15, 23, 42, 0.35);
+    }
+
+    .logo-square {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: #2269b0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .logo-square svg {
+      width: 34px;
+      height: 34px;
+      display: block;
+    }
+
+    .logo-wordmark {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .logo-wordmark span {
+      line-height: 1;
+    }
+
+    .logo-wordmark-mobile {
+      color: #d1d5db;
+    }
+
+    .logo-wordmark-dekor {
+      color: #1e63ad;
+    }
+
+    .logo-wordmark-trade {
+      font-size: 0.6em;
+      transform: translateY(-2px);
+      color: #94a3b8;
+    }
+
+    .app-header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .tagline {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .display {
+      background: rgba(15, 23, 42, 0.55);
+      border-radius: 22px;
+      padding: 20px;
+      text-align: right;
+      min-height: 128px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-end;
+      gap: 10px;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
+    }
+
+    .expression {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      min-height: 1.25rem;
+      opacity: 0.85;
+    }
+
+    .result {
+      font-size: clamp(2.5rem, 5vw + 1.4rem, 3.4rem);
+      font-weight: 600;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    .keyboard {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 18px;
+      padding: 18px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: var(--button-bg);
+      color: var(--text-primary);
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      box-shadow: inset 0 -2px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    button:hover {
+      background: var(--button-hover);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.45);
+    }
+
+    .operator {
+      background: linear-gradient(150deg, rgba(56, 189, 248, 0.35), rgba(14, 165, 233, 0.3));
+    }
+
+    .operator:hover {
+      background: linear-gradient(150deg, rgba(56, 189, 248, 0.5), rgba(14, 165, 233, 0.45));
+    }
+
+    .equals {
+      background: linear-gradient(150deg, var(--accent), var(--accent-strong));
+      color: #0b1120;
+      box-shadow: inset 0 -2px 0 rgba(12, 74, 110, 0.4);
+    }
+
+    .equals:hover {
+      background: linear-gradient(150deg, #5fd5ff, var(--accent-strong));
+    }
+
+    @media (max-width: 480px) {
+      .app-container {
+        padding: 24px 20px 28px;
+        border-radius: 24px;
+      }
+
+      .logo {
+        padding: 8px 12px;
+        gap: 10px;
+      }
+
+      .logo-square {
+        width: 44px;
+        height: 44px;
+      }
+
+      .logo-square svg {
+        width: 30px;
+        height: 30px;
+      }
+
+      .logo-wordmark {
+        font-size: 0.8rem;
+      }
+
+      button {
+        border-radius: 16px;
+        padding: 16px;
+        font-size: 1rem;
+      }
+
+      .display {
+        padding: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo" aria-hidden="true">
+        <div class="logo-square">
+          <svg viewBox="0 0 100 100" role="img" aria-hidden="true" focusable="false">
+            <rect width="100" height="100" fill="none" />
+            <g fill="#ffffff">
+              <rect x="42" y="18" width="16" height="16" transform="rotate(45 50 26)" />
+              <rect x="24" y="36" width="16" height="16" transform="rotate(45 32 44)" />
+              <rect x="60" y="36" width="16" height="16" transform="rotate(45 68 44)" />
+              <rect x="42" y="54" width="16" height="16" transform="rotate(45 50 62)" />
+              <rect x="78" y="54" width="16" height="16" transform="rotate(45 86 62)" />
+              <rect x="6" y="54" width="16" height="16" transform="rotate(45 14 62)" />
+            </g>
+          </svg>
+        </div>
+        <div class="logo-wordmark">
+          <span class="logo-wordmark-mobile">MOBILE</span>
+          <span class="logo-wordmark-dekor">DEKOR</span>
+          <span class="logo-wordmark-trade">™</span>
+        </div>
+      </div>
+      <div>
+        <h1>Mobile Dekor</h1>
+        <p class="tagline">The value beyond imagination</p>
+      </div>
+    </header>
 
-<div id="calendar"></div>
+    <section class="display" aria-live="polite">
+      <div class="expression" id="expression">&nbsp;</div>
+      <div class="result" id="result">0</div>
+    </section>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'sq',
-    events: [],
-  });
-  calendar.render();
+    <section class="keyboard" role="grid">
+      <button type="button" data-action="percent">%</button>
+      <button type="button" data-action="clear-entry">CE</button>
+      <button type="button" data-action="clear">C</button>
+      <button type="button" data-action="backspace">⌫</button>
 
-  // API i SheetDB për tërheqjen automatike të të dhënave
-  const sheetApiUrl = 'https://sheetdb.io/api/v1/yvpclo1go97wj';
+      <button type="button" data-action="inverse">1/x</button>
+      <button type="button" data-action="square">x²</button>
+      <button type="button" data-action="sqrt">√x</button>
+      <button type="button" class="operator" data-operator="/">÷</button>
 
-  fetch(sheetApiUrl)
-    .then(response => response.json())
-    .then(data => {
-      const events = data.map(row => ({
-        title: (row.vehicle ? row.vehicle + ' - ' : '') + row.title,
-        start: row.start,
-        end: row.end,
-        color: row.color
-      }));
-      events.forEach(event => calendar.addEvent(event));
-    })
-    .catch(error => console.error('Gabim në tërheqjen e të dhënave:', error));
-});
-</script>
+      <button type="button" data-value="7">7</button>
+      <button type="button" data-value="8">8</button>
+      <button type="button" data-value="9">9</button>
+      <button type="button" class="operator" data-operator="*">×</button>
 
+      <button type="button" data-value="4">4</button>
+      <button type="button" data-value="5">5</button>
+      <button type="button" data-value="6">6</button>
+      <button type="button" class="operator" data-operator="-">−</button>
+
+      <button type="button" data-value="1">1</button>
+      <button type="button" data-value="2">2</button>
+      <button type="button" data-value="3">3</button>
+      <button type="button" class="operator" data-operator="+">+</button>
+
+      <button type="button" data-action="sign">±</button>
+      <button type="button" data-value="0">0</button>
+      <button type="button" data-value=".">,</button>
+      <button type="button" class="equals" data-action="equals">=</button>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      const resultEl = document.getElementById('result');
+      const expressionEl = document.getElementById('expression');
+      const keyboard = document.querySelector('.keyboard');
+
+      let currentValue = '0';
+      let storedValue = null;
+      let currentOperator = null;
+      let justEvaluated = false;
+
+      const formatNumber = (value) => {
+        const [integerPart, decimalPart] = value.split('.');
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
+        return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+      };
+
+      const updateDisplay = () => {
+        resultEl.textContent = formatNumber(currentValue);
+        if (storedValue !== null && currentOperator) {
+          expressionEl.textContent = `${formatNumber(storedValue.toString())} ${operatorSymbol(currentOperator)}`;
+        } else {
+          expressionEl.innerHTML = '&nbsp;';
+        }
+      };
+
+      const operatorSymbol = (op) => ({ '/': '÷', '*': '×', '+': '+', '-': '−' }[op] || op);
+
+      const resetAll = () => {
+        currentValue = '0';
+        storedValue = null;
+        currentOperator = null;
+        justEvaluated = false;
+        updateDisplay();
+      };
+
+      const resetEntry = () => {
+        currentValue = '0';
+        updateDisplay();
+      };
+
+      const inputDigit = (digit) => {
+        if (justEvaluated) {
+          currentValue = digit === '.' ? '0.' : digit;
+          justEvaluated = false;
+          return updateDisplay();
+        }
+
+        if (digit === '.') {
+          if (!currentValue.includes('.')) {
+            currentValue += '.';
+          }
+        } else {
+          currentValue = currentValue === '0' ? digit : currentValue + digit;
+        }
+        updateDisplay();
+      };
+
+      const performOperation = (operator) => {
+        if (currentOperator && !justEvaluated) {
+          calculate();
+        } else {
+          storedValue = parseFloat(currentValue);
+        }
+        currentOperator = operator;
+        justEvaluated = false;
+        currentValue = '0';
+        updateDisplay();
+      };
+
+      const calculate = () => {
+        if (currentOperator === null || storedValue === null) {
+          return;
+        }
+
+        const operand = parseFloat(currentValue);
+        let result;
+
+        switch (currentOperator) {
+          case '+':
+            result = storedValue + operand;
+            break;
+          case '-':
+            result = storedValue - operand;
+            break;
+          case '*':
+            result = storedValue * operand;
+            break;
+          case '/':
+            result = operand === 0 ? NaN : storedValue / operand;
+            break;
+          default:
+            return;
+        }
+
+        currentValue = Number.isFinite(result) ? result.toString() : 'Gabim';
+        storedValue = Number.isFinite(result) ? result : null;
+        currentOperator = Number.isFinite(result) ? currentOperator : null;
+        justEvaluated = true;
+        updateDisplay();
+      };
+
+      const inverse = () => {
+        const value = parseFloat(currentValue);
+        if (value === 0) {
+          currentValue = 'Gabim';
+          justEvaluated = true;
+        } else {
+          currentValue = (1 / value).toString();
+        }
+        updateDisplay();
+      };
+
+      const square = () => {
+        const value = parseFloat(currentValue);
+        currentValue = (value * value).toString();
+        updateDisplay();
+      };
+
+      const sqrt = () => {
+        const value = parseFloat(currentValue);
+        currentValue = value < 0 ? 'Gabim' : Math.sqrt(value).toString();
+        justEvaluated = value < 0;
+        updateDisplay();
+      };
+
+      const percent = () => {
+        const value = parseFloat(currentValue);
+        if (storedValue !== null && currentOperator) {
+          currentValue = (storedValue * value / 100).toString();
+        } else {
+          currentValue = (value / 100).toString();
+        }
+        updateDisplay();
+      };
+
+      const toggleSign = () => {
+        if (currentValue === '0' || currentValue === 'Gabim') return;
+        currentValue = currentValue.startsWith('-') ? currentValue.slice(1) : `-${currentValue}`;
+        updateDisplay();
+      };
+
+      const backspace = () => {
+        if (justEvaluated || currentValue === 'Gabim') {
+          resetEntry();
+          return;
+        }
+        currentValue = currentValue.length > 1 ? currentValue.slice(0, -1) : '0';
+        updateDisplay();
+      };
+
+      keyboard.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+
+        const value = button.dataset.value;
+        const operator = button.dataset.operator;
+        const action = button.dataset.action;
+
+        if (value !== undefined) {
+          inputDigit(value === '.' ? '.' : value);
+          return;
+        }
+
+        if (operator) {
+          performOperation(operator);
+          return;
+        }
+
+        switch (action) {
+          case 'clear':
+            resetAll();
+            break;
+          case 'clear-entry':
+            resetEntry();
+            break;
+          case 'backspace':
+            backspace();
+            break;
+          case 'equals':
+            calculate();
+            break;
+          case 'inverse':
+            inverse();
+            break;
+          case 'square':
+            square();
+            break;
+          case 'sqrt':
+            sqrt();
+            break;
+          case 'percent':
+            percent();
+            break;
+          case 'sign':
+            toggleSign();
+            break;
+          default:
+            break;
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key >= '0' && event.key <= '9') {
+          inputDigit(event.key);
+        } else if (event.key === '.') {
+          inputDigit('.');
+        } else if (event.key === 'Backspace') {
+          event.preventDefault();
+          backspace();
+        } else if (event.key === 'Enter' || event.key === '=') {
+          event.preventDefault();
+          calculate();
+        } else if (['+', '-', '*', '/'].includes(event.key)) {
+          event.preventDefault();
+          performOperation(event.key);
+        } else if (event.key === 'Escape') {
+          resetAll();
+        }
+      });
+
+      updateDisplay();
+    })();
+  </script>
 </body>
 </html>
