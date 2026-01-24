@@ -1,46 +1,662 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalendar Rezervimesh Makine (Me Emër Automjeti)</title>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
-<style>
-  #calendar { max-width: 600px; margin: 40px auto; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regjistrimi i Famullisë</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2a44;
+      --muted: #6b7280;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(120deg, rgba(29,78,216,0.95), rgba(14,116,144,0.95));
+      color: #fff;
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      max-width: 680px;
+      margin: 0 auto;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border);
+    }
+
+    .card h3 {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .card .metric {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 420px) 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 0.95rem;
+      transition: border 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.1);
+    }
+
+    .two-cols {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    button.secondary {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    button.danger {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: var(--success);
+    }
+
+    .table-wrapper {
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: var(--muted);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+
+    .privacy {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .tag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .tag-grid label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .empty-state {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Regjistrimi i Famullisë</h1>
+    <p>Menaxhoni regjistrimet e famullisë, të dhënat e besimtarëve dhe sakramentet në një panel të vetëm. Të dhënat ruhen lokalisht në shfletues për demonstrim.</p>
+  </header>
 
-<div id="calendar"></div>
+  <main>
+    <section class="cards">
+      <article class="card">
+        <h3>Regjistrime totale</h3>
+        <p class="metric" id="total-registrations">0</p>
+      </article>
+      <article class="card">
+        <h3>Regjistrime këtë muaj</h3>
+        <p class="metric" id="monthly-registrations">0</p>
+      </article>
+      <article class="card">
+        <h3>Familje aktive</h3>
+        <p class="metric" id="active-families">0</p>
+      </article>
+      <article class="card">
+        <h3>Sakramente të regjistruara</h3>
+        <p class="metric" id="sacrament-count">0</p>
+      </article>
+    </section>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'sq',
-    events: [],
-  });
-  calendar.render();
+    <section class="layout">
+      <article class="card">
+        <h2>Formulari i regjistrimit</h2>
+        <p class="privacy">Plotësoni të dhënat kryesore për regjistrimin e besimtarit/familjes.</p>
+        <form id="registration-form">
+          <div class="two-cols">
+            <div>
+              <label for="firstName">Emri</label>
+              <input id="firstName" name="firstName" type="text" required>
+            </div>
+            <div>
+              <label for="lastName">Mbiemri</label>
+              <input id="lastName" name="lastName" type="text" required>
+            </div>
+          </div>
+          <div class="two-cols">
+            <div>
+              <label for="birthDate">Datëlindja</label>
+              <input id="birthDate" name="birthDate" type="date" required>
+            </div>
+            <div>
+              <label for="idNumber">Nr. Identifikimi</label>
+              <input id="idNumber" name="idNumber" type="text" placeholder="ID ose nr. personal" required>
+            </div>
+          </div>
+          <div>
+            <label for="address">Adresa</label>
+            <input id="address" name="address" type="text" required>
+          </div>
+          <div class="two-cols">
+            <div>
+              <label for="phone">Telefoni</label>
+              <input id="phone" name="phone" type="tel" placeholder="+355 ..." required>
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required>
+            </div>
+          </div>
+          <div class="two-cols">
+            <div>
+              <label for="registrationDate">Data e regjistrimit</label>
+              <input id="registrationDate" name="registrationDate" type="date" required>
+            </div>
+            <div>
+              <label for="familyMembers">Anëtarë familje</label>
+              <input id="familyMembers" name="familyMembers" type="number" min="1" value="1" required>
+            </div>
+          </div>
+          <div>
+            <label>Sakramentet e marra</label>
+            <div class="tag-grid">
+              <label><input type="checkbox" name="sacraments" value="Pagëzim"> Pagëzim</label>
+              <label><input type="checkbox" name="sacraments" value="Kungim"> Kungim</label>
+              <label><input type="checkbox" name="sacraments" value="Krezmim"> Krezmim</label>
+              <label><input type="checkbox" name="sacraments" value="Martesë"> Martesë</label>
+              <label><input type="checkbox" name="sacraments" value="Rrëfim"> Rrëfim</label>
+              <label><input type="checkbox" name="sacraments" value="Ujëlidhje"> Ujëlidhje</label>
+            </div>
+          </div>
+          <div>
+            <label for="notes">Shënime shtesë</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Vërejtje për regjistrimin..."></textarea>
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit" id="submitBtn">Ruaj regjistrimin</button>
+            <button class="secondary" type="button" id="resetBtn">Pastro formularin</button>
+            <button class="ghost" type="button" id="demoBtn">Shto shembull</button>
+          </div>
+          <p class="status" id="status"></p>
+        </form>
+      </article>
 
-  // API i SheetDB për tërheqjen automatike të të dhënave
-  const sheetApiUrl = 'https://sheetdb.io/api/v1/yvpclo1go97wj';
+      <article class="card">
+        <div class="actions" style="justify-content: space-between; align-items: center;">
+          <div>
+            <h2>Regjistrimet e famullisë</h2>
+            <p class="privacy">Filtroni regjistrimet dhe eksportoni në CSV.</p>
+          </div>
+          <button class="secondary" type="button" id="exportBtn">Eksporto CSV</button>
+        </div>
+        <div class="two-cols" style="margin: 16px 0;">
+          <div>
+            <label for="searchInput">Kërko</label>
+            <input id="searchInput" type="text" placeholder="Kërko me emër, mbiemër, ID...">
+          </div>
+          <div>
+            <label for="sacramentFilter">Filtro sipas sakramentit</label>
+            <select id="sacramentFilter">
+              <option value="">Të gjitha</option>
+              <option value="Pagëzim">Pagëzim</option>
+              <option value="Kungim">Kungim</option>
+              <option value="Krezmim">Krezmim</option>
+              <option value="Martesë">Martesë</option>
+              <option value="Rrëfim">Rrëfim</option>
+              <option value="Ujëlidhje">Ujëlidhje</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Emri & Mbiemri</th>
+                <th>Kontakt</th>
+                <th>Familja</th>
+                <th>Sakramentet</th>
+                <th>Data e regjistrimit</th>
+                <th>Veprime</th>
+              </tr>
+            </thead>
+            <tbody id="registrationsTable">
+              <tr>
+                <td colspan="6" class="empty-state">Nuk ka regjistrime ende.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
 
-  fetch(sheetApiUrl)
-    .then(response => response.json())
-    .then(data => {
-      const events = data.map(row => ({
-        title: (row.vehicle ? row.vehicle + ' - ' : '') + row.title,
-        start: row.start,
-        end: row.end,
-        color: row.color
-      }));
-      events.forEach(event => calendar.addEvent(event));
-    })
-    .catch(error => console.error('Gabim në tërheqjen e të dhënave:', error));
-});
-</script>
+    <section class="card">
+      <h2>Privatësia dhe ruajtja e të dhënave</h2>
+      <p class="privacy">Ky demo ruan të dhënat vetëm në shfletues (LocalStorage). Për përdorim real, rekomandohet ruajtja në një server të sigurt me akses të kontrolluar.</p>
+    </section>
+  </main>
 
+  <script>
+    const storageKey = "parishRegistrations";
+    const form = document.getElementById("registration-form");
+    const tableBody = document.getElementById("registrationsTable");
+    const statusEl = document.getElementById("status");
+    const searchInput = document.getElementById("searchInput");
+    const sacramentFilter = document.getElementById("sacramentFilter");
+    const resetBtn = document.getElementById("resetBtn");
+    const demoBtn = document.getElementById("demoBtn");
+    const exportBtn = document.getElementById("exportBtn");
+
+    const totalRegistrations = document.getElementById("total-registrations");
+    const monthlyRegistrations = document.getElementById("monthly-registrations");
+    const activeFamilies = document.getElementById("active-families");
+    const sacramentCount = document.getElementById("sacrament-count");
+
+    let editingId = null;
+
+    const loadRegistrations = () => {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? JSON.parse(raw) : [];
+    };
+
+    const saveRegistrations = (items) => {
+      localStorage.setItem(storageKey, JSON.stringify(items));
+    };
+
+    const formatDate = (value) => {
+      if (!value) return "-";
+      const date = new Date(value);
+      return date.toLocaleDateString("sq-AL", { day: "2-digit", month: "short", year: "numeric" });
+    };
+
+    const renderStats = (items) => {
+      totalRegistrations.textContent = items.length;
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const monthly = items.filter(item => {
+        const date = new Date(item.registrationDate);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      }).length;
+      monthlyRegistrations.textContent = monthly;
+      const familySet = new Set(items.map(item => item.address));
+      activeFamilies.textContent = familySet.size;
+      const sacramentSet = new Set(items.flatMap(item => item.sacraments));
+      sacramentCount.textContent = sacramentSet.size;
+    };
+
+    const renderTable = () => {
+      const items = loadRegistrations();
+      const searchValue = searchInput.value.toLowerCase();
+      const sacramentValue = sacramentFilter.value;
+
+      const filtered = items.filter(item => {
+        const searchable = `${item.firstName} ${item.lastName} ${item.idNumber} ${item.email}`.toLowerCase();
+        const matchesSearch = searchable.includes(searchValue);
+        const matchesSacrament = sacramentValue ? item.sacraments.includes(sacramentValue) : true;
+        return matchesSearch && matchesSacrament;
+      });
+
+      tableBody.innerHTML = "";
+      if (filtered.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="6" class="empty-state">Nuk u gjetën regjistrime.</td>`;
+        tableBody.appendChild(row);
+      } else {
+        filtered.forEach(item => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>
+              <strong>${item.firstName} ${item.lastName}</strong><br>
+              <span class="privacy">${formatDate(item.birthDate)} · ID ${item.idNumber}</span>
+            </td>
+            <td>
+              <div>${item.phone}</div>
+              <div class="privacy">${item.email}</div>
+            </td>
+            <td>
+              <div>${item.address}</div>
+              <div class="privacy">Anëtarë: ${item.familyMembers}</div>
+            </td>
+            <td>
+              ${item.sacraments.map(sac => `<span class="pill">${sac}</span>`).join("") || "-"}
+              <div class="privacy">${item.notes || ""}</div>
+            </td>
+            <td>${formatDate(item.registrationDate)}</td>
+            <td>
+              <button class="secondary" data-action="edit" data-id="${item.id}">Edito</button>
+              <button class="danger" data-action="delete" data-id="${item.id}">Fshi</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+      renderStats(items);
+    };
+
+    const getFormData = () => {
+      const formData = new FormData(form);
+      const sacraments = formData.getAll("sacraments");
+      return {
+        id: editingId || crypto.randomUUID(),
+        firstName: formData.get("firstName").trim(),
+        lastName: formData.get("lastName").trim(),
+        birthDate: formData.get("birthDate"),
+        idNumber: formData.get("idNumber").trim(),
+        address: formData.get("address").trim(),
+        phone: formData.get("phone").trim(),
+        email: formData.get("email").trim(),
+        registrationDate: formData.get("registrationDate"),
+        familyMembers: formData.get("familyMembers"),
+        sacraments,
+        notes: formData.get("notes").trim()
+      };
+    };
+
+    const setFormData = (item) => {
+      form.firstName.value = item.firstName;
+      form.lastName.value = item.lastName;
+      form.birthDate.value = item.birthDate;
+      form.idNumber.value = item.idNumber;
+      form.address.value = item.address;
+      form.phone.value = item.phone;
+      form.email.value = item.email;
+      form.registrationDate.value = item.registrationDate;
+      form.familyMembers.value = item.familyMembers;
+      form.notes.value = item.notes;
+      form.querySelectorAll("input[name='sacraments']").forEach(input => {
+        input.checked = item.sacraments.includes(input.value);
+      });
+    };
+
+    const clearForm = () => {
+      form.reset();
+      editingId = null;
+      document.getElementById("submitBtn").textContent = "Ruaj regjistrimin";
+      statusEl.textContent = "";
+    };
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = getFormData();
+      const items = loadRegistrations();
+
+      if (editingId) {
+        const index = items.findIndex(item => item.id === editingId);
+        if (index !== -1) {
+          items[index] = data;
+          statusEl.textContent = "Regjistrimi u përditësua me sukses.";
+        }
+      } else {
+        items.unshift(data);
+        statusEl.textContent = "Regjistrimi u ruajt me sukses.";
+      }
+
+      saveRegistrations(items);
+      clearForm();
+      renderTable();
+    });
+
+    resetBtn.addEventListener("click", clearForm);
+
+    demoBtn.addEventListener("click", () => {
+      const demo = {
+        id: crypto.randomUUID(),
+        firstName: "Arben",
+        lastName: "Kola",
+        birthDate: "1990-05-14",
+        idNumber: "AL-902344",
+        address: "Rruga e Kishës, Tiranë",
+        phone: "+355 69 123 4567",
+        email: "arben.kola@example.com",
+        registrationDate: new Date().toISOString().slice(0, 10),
+        familyMembers: 4,
+        sacraments: ["Pagëzim", "Kungim"],
+        notes: "Familje e re në famulli."
+      };
+      const items = loadRegistrations();
+      items.unshift(demo);
+      saveRegistrations(items);
+      renderTable();
+    });
+
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const id = target.dataset.id;
+      const action = target.dataset.action;
+      const items = loadRegistrations();
+      const item = items.find(entry => entry.id === id);
+
+      if (action === "edit" && item) {
+        editingId = item.id;
+        setFormData(item);
+        document.getElementById("submitBtn").textContent = "Përditëso regjistrimin";
+        statusEl.textContent = "Po editoni një regjistrim ekzistues.";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      if (action === "delete") {
+        const filtered = items.filter(entry => entry.id !== id);
+        saveRegistrations(filtered);
+        renderTable();
+      }
+    });
+
+    searchInput.addEventListener("input", renderTable);
+    sacramentFilter.addEventListener("change", renderTable);
+
+    exportBtn.addEventListener("click", () => {
+      const items = loadRegistrations();
+      if (items.length === 0) {
+        statusEl.textContent = "Nuk ka të dhëna për eksport.";
+        return;
+      }
+      const header = [
+        "Emri",
+        "Mbiemri",
+        "Datëlindja",
+        "ID",
+        "Adresa",
+        "Telefoni",
+        "Email",
+        "Data e regjistrimit",
+        "Anëtarë",
+        "Sakramentet",
+        "Shënime"
+      ];
+      const rows = items.map(item => [
+        item.firstName,
+        item.lastName,
+        item.birthDate,
+        item.idNumber,
+        item.address,
+        item.phone,
+        item.email,
+        item.registrationDate,
+        item.familyMembers,
+        item.sacraments.join(" | "),
+        item.notes
+      ]);
+      const csv = [header, ...rows]
+        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "regjistrimet-famullise.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    renderTable();
+  </script>
 </body>
 </html>
