@@ -1,46 +1,334 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalendar Rezervimesh Makine (Me Emër Automjeti)</title>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
-<style>
-  #calendar { max-width: 600px; margin: 40px auto; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kontrolli i Cilësisë - Mobilie</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --line: #d9e1ec;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --danger: #b91c1c;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 12px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    h1, h2 {
+      margin: 0 0 10px;
+      line-height: 1.25;
+    }
+
+    h1 { font-size: 1.3rem; }
+    h2 { font-size: 1.05rem; }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      font-size: 0.93rem;
+      font-weight: 600;
+    }
+
+    input, textarea, select, button {
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+
+    .items { display: grid; gap: 10px; }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.92rem;
+    }
+
+    .checks label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .defects {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-top: 1px dashed var(--line);
+      padding-top: 8px;
+    }
+
+    .defects label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      color: var(--danger);
+    }
+
+    .actions {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      border: none;
+      background: var(--accent);
+      color: white;
+    }
+
+    button.secondary { background: #374151; }
+    button.light { background: #e2e8f0; color: #1f2937; }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #0b1220;
+      color: #dbe7ff;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      max-height: 340px;
+      overflow: auto;
+    }
+
+    @media (max-width: 700px) {
+      .grid, .actions { grid-template-columns: 1fr; }
+      body { padding: 8px; }
+      .card { padding: 12px; }
+      h1 { font-size: 1.15rem; }
+    }
+  </style>
 </head>
 <body>
+  <main class="container">
+    <section class="card">
+      <h1>Formular i Kontrollit të Cilësisë</h1>
+      <p class="sub">I optimizuar për iPhone / mobile për monitorimin e produkteve: kuzhina, dhoma gjumi, ulëse, karriga, TV, komoda dhe shtrat.</p>
+    </section>
 
-<div id="calendar"></div>
+    <section class="card">
+      <h2>Të dhënat e klientit dhe porosisë</h2>
+      <div class="grid">
+        <label>Emri i klientit
+          <input id="clientName" type="text" placeholder="p.sh. Arben Krasniqi" required>
+        </label>
+        <label>Telefoni
+          <input id="clientPhone" type="tel" placeholder="+383 ...">
+        </label>
+        <label>Nr. porosisë
+          <input id="orderNo" type="text" placeholder="ORD-2026-...">
+        </label>
+        <label>Data e kontrollit
+          <input id="inspectDate" type="date">
+        </label>
+      </div>
+      <label style="margin-top:10px;">Adresa / Komente për porosinë
+        <textarea id="orderNotes" placeholder="Shkruaj detajet e porosisë..."></textarea>
+      </label>
+    </section>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'sq',
-    events: [],
-  });
-  calendar.render();
+    <section class="card">
+      <h2>Checklist e produkteve</h2>
+      <div id="items" class="items"></div>
+    </section>
 
-  // API i SheetDB për tërheqjen automatike të të dhënave
-  const sheetApiUrl = 'https://sheetdb.io/api/v1/yvpclo1go97wj';
+    <section class="card">
+      <div class="actions">
+        <button id="previewBtn" type="button">Gjenero raportin</button>
+        <button id="emailBtn" class="secondary" type="button">Dërgo me email</button>
+        <button id="downloadBtn" class="light" type="button">Shkarko raportin (.json)</button>
+      </div>
+      <p class="sub" style="margin-top:8px;">Shënim: emaili hapet në aplikacionin e postës dhe përfshin raportin në tekst. Fotot e dëmtimeve listohen me emër file; nëse duhet, bashkangjiti manualisht në email.</p>
+      <div style="margin-top:12px;">
+        <pre id="reportPreview">Raporti do të shfaqet këtu...</pre>
+      </div>
+    </section>
+  </main>
 
-  fetch(sheetApiUrl)
-    .then(response => response.json())
-    .then(data => {
-      const events = data.map(row => ({
-        title: (row.vehicle ? row.vehicle + ' - ' : '') + row.title,
-        start: row.start,
-        end: row.end,
-        color: row.color
-      }));
-      events.forEach(event => calendar.addEvent(event));
-    })
-    .catch(error => console.error('Gabim në tërheqjen e të dhënave:', error));
-});
-</script>
+  <script>
+    const products = [
+      "Kuzhina",
+      "Dhoma gjumi",
+      "Ulëse",
+      "Karriga",
+      "TV",
+      "Komoda",
+      "Shtrat"
+    ];
 
+    const itemsEl = document.getElementById("items");
+    const reportPreview = document.getElementById("reportPreview");
+
+    const createItem = (name, index) => {
+      const row = document.createElement("div");
+      row.className = "item";
+      row.dataset.index = index;
+      row.innerHTML = `
+        <div class="item-head">
+          <strong>${name}</strong>
+          <div class="checks">
+            <label><input type="checkbox" class="ok-check"> OK</label>
+          </div>
+        </div>
+        <div class="defects">
+          <label><input type="checkbox" class="defect" value="Dëmtim"> Dëmtim</label>
+          <label><input type="checkbox" class="defect" value="Gërvishtje"> Gërvishtje</label>
+          <label><input type="checkbox" class="defect" value="Defekt funksional"> Defekt</label>
+        </div>
+        <label>Shënime për ${name}
+          <textarea class="note" placeholder="Shkruaj vërejtje vetëm nëse ka problem..."></textarea>
+        </label>
+        <label>Foto e dëmtimit
+          <input type="file" class="photo" accept="image/*" multiple>
+        </label>
+      `;
+      itemsEl.appendChild(row);
+    };
+
+    products.forEach(createItem);
+
+    document.getElementById("inspectDate").valueAsDate = new Date();
+
+    function buildReportObject() {
+      const customer = {
+        emri: document.getElementById("clientName").value.trim(),
+        telefoni: document.getElementById("clientPhone").value.trim(),
+        porosia: document.getElementById("orderNo").value.trim(),
+        dataKontrollit: document.getElementById("inspectDate").value,
+        shenimePorosie: document.getElementById("orderNotes").value.trim()
+      };
+
+      const items = Array.from(document.querySelectorAll(".item")).map((item) => {
+        const product = products[Number(item.dataset.index)];
+        const ok = item.querySelector(".ok-check").checked;
+        const defects = Array.from(item.querySelectorAll(".defect:checked")).map(d => d.value);
+        const note = item.querySelector(".note").value.trim();
+        const files = Array.from(item.querySelector(".photo").files || []).map(f => f.name);
+
+        return {
+          produkti: product,
+          statusi: ok ? "OK" : (defects.length ? "Me probleme" : "Pa verifikim"),
+          probleme: defects,
+          shenime: note,
+          foto: files
+        };
+      });
+
+      return { klienti: customer, kontrolli: items, krijuarMe: "Web Template QA v1" };
+    }
+
+    function buildReportText(report) {
+      const lines = [];
+      lines.push("RAPORT KONTROLLI I CILËSISË");
+      lines.push("----------------------------");
+      lines.push(`Klienti: ${report.klienti.emri || "-"}`);
+      lines.push(`Telefoni: ${report.klienti.telefoni || "-"}`);
+      lines.push(`Nr. Porosisë: ${report.klienti.porosia || "-"}`);
+      lines.push(`Data: ${report.klienti.dataKontrollit || "-"}`);
+      lines.push(`Detaje porosie: ${report.klienti.shenimePorosie || "-"}`);
+      lines.push("");
+
+      report.kontrolli.forEach((i) => {
+        lines.push(`• ${i.produkti} -> ${i.statusi}`);
+        if (i.probleme.length) lines.push(`  Probleme: ${i.probleme.join(", ")}`);
+        if (i.shenime) lines.push(`  Shënime: ${i.shenime}`);
+        if (i.foto.length) lines.push(`  Foto: ${i.foto.join(", ")}`);
+      });
+
+      return lines.join("\n");
+    }
+
+    function updatePreview() {
+      const report = buildReportObject();
+      const text = buildReportText(report);
+      reportPreview.textContent = text;
+      return { report, text };
+    }
+
+    document.getElementById("previewBtn").addEventListener("click", updatePreview);
+
+    document.getElementById("emailBtn").addEventListener("click", () => {
+      const { text } = updatePreview();
+      const subject = encodeURIComponent("Raport i kontrollit të cilësisë");
+      const body = encodeURIComponent(text + "\n\n(Bashkangjit manualisht fotot e dëmtimeve në email)");
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const { report } = updatePreview();
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `raport-kontrolli-${report.klienti.porosia || Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
 </body>
 </html>
