@@ -1,46 +1,600 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalendar Rezervimesh Makine (Me Emër Automjeti)</title>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
-<style>
-  #calendar { max-width: 600px; margin: 40px auto; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Famullia - Regjistri i Familjeve dhe Sakramenteve</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --primary: #2441e0;
+      --primary-soft: #e8ecff;
+      --text: #202533;
+      --muted: #5f6a7d;
+      --border: #d9deea;
+      --danger: #c0392b;
+      --success: #1d8348;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.9rem;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .notice {
+      background: var(--primary-soft);
+      border: 1px solid #cfd8ff;
+      color: #1f2c6a;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(14, 20, 42, 0.04);
+    }
+
+    .panel.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 8px 0 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 0.93rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f8fc;
+      color: #46516a;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .table-wrap {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 8px;
+    }
+
+    .status {
+      margin: 8px 0 0;
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .status.success { color: var(--success); }
+    .status.error { color: var(--danger); }
+
+    .small {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>WebApp i Famullisë</h1>
+    <p class="subtitle">Regjistrim i kryefamiljarëve, anëtarëve dhe sakramenteve, i lidhur me Google Sheets.</p>
 
-<div id="calendar"></div>
+    <div class="notice">
+      Vendos URL e <strong>Google Apps Script Web App</strong> më poshtë (Deploy si “Anyone with the link”).
+      App-i pret endpoint-e me veprimin: <code>?action=listHouseholds</code>, <code>listMembers</code>, <code>listSacraments</code> dhe POST për <code>upsert...</code> / <code>delete...</code>.
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'sq',
-    events: [],
-  });
-  calendar.render();
+    <div class="panel active" style="margin-bottom:14px; display:block;">
+      <div class="grid">
+        <div>
+          <label for="apiBaseUrl">URL e API (Apps Script)</label>
+          <input id="apiBaseUrl" type="url" placeholder="https://script.google.com/macros/s/XXXX/exec">
+        </div>
+      </div>
+      <div class="actions">
+        <button id="saveApiUrlBtn" class="secondary">Ruaj URL</button>
+        <button id="loadAllBtn">Ngarko të dhënat</button>
+      </div>
+      <p class="small">Këshillë: mund ta lidhësh me 3 fletë në Google Sheets: <em>Households</em>, <em>Members</em>, <em>Sacraments</em>.</p>
+      <p id="globalStatus" class="status"></p>
+    </div>
 
-  // API i SheetDB për tërheqjen automatike të të dhënave
-  const sheetApiUrl = 'https://sheetdb.io/api/v1/yvpclo1go97wj';
+    <div class="tabs">
+      <button class="tab active" data-tab="households">Kryefamiljarë</button>
+      <button class="tab" data-tab="members">Anëtarë</button>
+      <button class="tab" data-tab="sacraments">Sakramente</button>
+    </div>
 
-  fetch(sheetApiUrl)
-    .then(response => response.json())
-    .then(data => {
-      const events = data.map(row => ({
-        title: (row.vehicle ? row.vehicle + ' - ' : '') + row.title,
-        start: row.start,
-        end: row.end,
-        color: row.color
-      }));
-      events.forEach(event => calendar.addEvent(event));
-    })
-    .catch(error => console.error('Gabim në tërheqjen e të dhënave:', error));
-});
-</script>
+    <section id="panel-households" class="panel active">
+      <h2>Kryefamiljar / Familje</h2>
+      <div class="grid">
+        <div><label for="hhId">ID Familje</label><input id="hhId" placeholder="p.sh. FAM-001"></div>
+        <div><label for="hhHead">Kryefamiljar</label><input id="hhHead" placeholder="Emri Mbiemri"></div>
+        <div><label for="hhPhone">Telefon</label><input id="hhPhone"></div>
+        <div><label for="hhEmail">Email</label><input id="hhEmail" type="email"></div>
+      </div>
+      <div class="grid">
+        <div style="grid-column: 1 / -1;"><label for="hhAddress">Adresa</label><textarea id="hhAddress"></textarea></div>
+      </div>
+      <div class="actions">
+        <button id="saveHouseholdBtn">Ruaj Familjen</button>
+        <button id="deleteHouseholdBtn" class="danger">Fshi Familjen</button>
+      </div>
+      <p id="householdsStatus" class="status"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Kryefamiljar</th><th>Kontakt</th><th>Adresa</th></tr></thead>
+          <tbody id="householdsBody"></tbody>
+        </table>
+      </div>
+    </section>
 
+    <section id="panel-members" class="panel">
+      <h2>Anëtarët e Familjes</h2>
+      <div class="grid">
+        <div><label for="mId">ID Anëtar</label><input id="mId" placeholder="p.sh. ANT-001"></div>
+        <div><label for="mFamilyId">ID Familje</label><input id="mFamilyId" placeholder="FAM-001"></div>
+        <div><label for="mName">Emër i Plotë</label><input id="mName"></div>
+        <div><label for="mRole">Roli</label><select id="mRole"><option value="Anëtar">Anëtar</option><option value="Kryefamiljar">Kryefamiljar</option><option value="Bashkëshort/e">Bashkëshort/e</option><option value="Fëmijë">Fëmijë</option></select></div>
+      </div>
+      <div class="grid">
+        <div><label for="mBirth">Datëlindja</label><input id="mBirth" type="date"></div>
+        <div><label for="mGender">Gjinia</label><select id="mGender"><option value="">--</option><option value="M">M</option><option value="F">F</option></select></div>
+        <div style="grid-column: 1 / -1;"><label for="mNotes">Shënime</label><textarea id="mNotes"></textarea></div>
+      </div>
+      <div class="actions">
+        <button id="saveMemberBtn">Ruaj Anëtarin</button>
+        <button id="deleteMemberBtn" class="danger">Fshi Anëtarin</button>
+      </div>
+      <p id="membersStatus" class="status"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>ID Familje</th><th>Emër</th><th>Roli</th><th>Datëlindja</th></tr></thead>
+          <tbody id="membersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="panel-sacraments" class="panel">
+      <h2>Sakramente</h2>
+      <div class="grid">
+        <div><label for="sId">ID Sakrament</label><input id="sId" placeholder="p.sh. SAK-001"></div>
+        <div><label for="sMemberId">ID Anëtar</label><input id="sMemberId" placeholder="ANT-001"></div>
+        <div><label for="sType">Lloji</label><select id="sType"><option value="Pagëzim">Pagëzim</option><option value="Kungim">Kungim</option><option value="Krezmim">Krezmim</option><option value="Kurorëzim">Kurorëzim</option><option value="Rrëfim">Rrëfim</option><option value="Vajim">Vajim</option></select></div>
+        <div><label for="sDate">Data</label><input id="sDate" type="date"></div>
+      </div>
+      <div class="grid">
+        <div><label for="sPlace">Vendi</label><input id="sPlace" placeholder="Famullia ..."></div>
+        <div><label for="sPriest">Meshtari</label><input id="sPriest"></div>
+        <div style="grid-column: 1 / -1;"><label for="sNotes">Shënime</label><textarea id="sNotes"></textarea></div>
+      </div>
+      <div class="actions">
+        <button id="saveSacramentBtn">Ruaj Sakramentin</button>
+        <button id="deleteSacramentBtn" class="danger">Fshi Sakramentin</button>
+      </div>
+      <p id="sacramentsStatus" class="status"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>ID Anëtar</th><th>Lloji</th><th>Data</th><th>Vendi</th></tr></thead>
+          <tbody id="sacramentsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'famullia_api_base_url';
+
+    const state = {
+      households: [],
+      members: [],
+      sacraments: []
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function setStatus(elementId, text, type = '') {
+      const target = el(elementId);
+      target.textContent = text || '';
+      target.className = `status ${type}`.trim();
+    }
+
+    function getApiBaseUrl() {
+      return el('apiBaseUrl').value.trim();
+    }
+
+    function buildUrl(action) {
+      const baseUrl = getApiBaseUrl();
+      if (!baseUrl) {
+        throw new Error('Së pari vendos URL e API-së (Apps Script).');
+      }
+      const joiner = baseUrl.includes('?') ? '&' : '?';
+      return `${baseUrl}${joiner}action=${encodeURIComponent(action)}`;
+    }
+
+    async function apiGet(action) {
+      const response = await fetch(buildUrl(action));
+      if (!response.ok) throw new Error(`Gabim HTTP ${response.status}`);
+      return response.json();
+    }
+
+    async function apiPost(action, payload) {
+      const response = await fetch(buildUrl(action), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error(`Gabim HTTP ${response.status}`);
+      return response.json();
+    }
+
+    function renderHouseholds() {
+      const body = el('householdsBody');
+      body.innerHTML = '';
+      state.households.forEach((row) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.id || ''}</td>
+          <td>${row.headName || ''}</td>
+          <td>${row.phone || ''}<br>${row.email || ''}</td>
+          <td>${row.address || ''}</td>
+        `;
+        tr.addEventListener('click', () => {
+          el('hhId').value = row.id || '';
+          el('hhHead').value = row.headName || '';
+          el('hhPhone').value = row.phone || '';
+          el('hhEmail').value = row.email || '';
+          el('hhAddress').value = row.address || '';
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    function renderMembers() {
+      const body = el('membersBody');
+      body.innerHTML = '';
+      state.members.forEach((row) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.id || ''}</td>
+          <td>${row.familyId || ''}</td>
+          <td>${row.fullName || ''}</td>
+          <td>${row.role || ''}</td>
+          <td>${row.birthDate || ''}</td>
+        `;
+        tr.addEventListener('click', () => {
+          el('mId').value = row.id || '';
+          el('mFamilyId').value = row.familyId || '';
+          el('mName').value = row.fullName || '';
+          el('mRole').value = row.role || 'Anëtar';
+          el('mBirth').value = row.birthDate || '';
+          el('mGender').value = row.gender || '';
+          el('mNotes').value = row.notes || '';
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    function renderSacraments() {
+      const body = el('sacramentsBody');
+      body.innerHTML = '';
+      state.sacraments.forEach((row) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.id || ''}</td>
+          <td>${row.memberId || ''}</td>
+          <td>${row.type || ''}</td>
+          <td>${row.date || ''}</td>
+          <td>${row.place || ''}</td>
+        `;
+        tr.addEventListener('click', () => {
+          el('sId').value = row.id || '';
+          el('sMemberId').value = row.memberId || '';
+          el('sType').value = row.type || 'Pagëzim';
+          el('sDate').value = row.date || '';
+          el('sPlace').value = row.place || '';
+          el('sPriest').value = row.priest || '';
+          el('sNotes').value = row.notes || '';
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    async function loadAllData() {
+      setStatus('globalStatus', 'Po ngarkohen të dhënat...');
+      try {
+        const [households, members, sacraments] = await Promise.all([
+          apiGet('listHouseholds'),
+          apiGet('listMembers'),
+          apiGet('listSacraments')
+        ]);
+
+        state.households = Array.isArray(households) ? households : [];
+        state.members = Array.isArray(members) ? members : [];
+        state.sacraments = Array.isArray(sacraments) ? sacraments : [];
+
+        renderHouseholds();
+        renderMembers();
+        renderSacraments();
+
+        setStatus('globalStatus', 'Të dhënat u ngarkuan me sukses.', 'success');
+      } catch (error) {
+        setStatus('globalStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    async function saveHousehold() {
+      const payload = {
+        id: el('hhId').value.trim(),
+        headName: el('hhHead').value.trim(),
+        phone: el('hhPhone').value.trim(),
+        email: el('hhEmail').value.trim(),
+        address: el('hhAddress').value.trim()
+      };
+
+      if (!payload.id || !payload.headName) {
+        setStatus('householdsStatus', 'ID dhe Kryefamiljar janë të detyrueshme.', 'error');
+        return;
+      }
+
+      try {
+        await apiPost('upsertHousehold', payload);
+        setStatus('householdsStatus', 'Familja u ruajt me sukses.', 'success');
+        await loadAllData();
+      } catch (error) {
+        setStatus('householdsStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    async function deleteHousehold() {
+      const id = el('hhId').value.trim();
+      if (!id) {
+        setStatus('householdsStatus', 'Vendos ID e familjes për fshirje.', 'error');
+        return;
+      }
+      try {
+        await apiPost('deleteHousehold', { id });
+        setStatus('householdsStatus', 'Familja u fshi.', 'success');
+        await loadAllData();
+      } catch (error) {
+        setStatus('householdsStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    async function saveMember() {
+      const payload = {
+        id: el('mId').value.trim(),
+        familyId: el('mFamilyId').value.trim(),
+        fullName: el('mName').value.trim(),
+        role: el('mRole').value,
+        birthDate: el('mBirth').value,
+        gender: el('mGender').value,
+        notes: el('mNotes').value.trim()
+      };
+
+      if (!payload.id || !payload.familyId || !payload.fullName) {
+        setStatus('membersStatus', 'ID, ID Familje dhe Emri janë të detyrueshme.', 'error');
+        return;
+      }
+
+      try {
+        await apiPost('upsertMember', payload);
+        setStatus('membersStatus', 'Anëtari u ruajt me sukses.', 'success');
+        await loadAllData();
+      } catch (error) {
+        setStatus('membersStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    async function deleteMember() {
+      const id = el('mId').value.trim();
+      if (!id) {
+        setStatus('membersStatus', 'Vendos ID e anëtarit për fshirje.', 'error');
+        return;
+      }
+      try {
+        await apiPost('deleteMember', { id });
+        setStatus('membersStatus', 'Anëtari u fshi.', 'success');
+        await loadAllData();
+      } catch (error) {
+        setStatus('membersStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    async function saveSacrament() {
+      const payload = {
+        id: el('sId').value.trim(),
+        memberId: el('sMemberId').value.trim(),
+        type: el('sType').value,
+        date: el('sDate').value,
+        place: el('sPlace').value.trim(),
+        priest: el('sPriest').value.trim(),
+        notes: el('sNotes').value.trim()
+      };
+
+      if (!payload.id || !payload.memberId || !payload.type) {
+        setStatus('sacramentsStatus', 'ID, ID Anëtar dhe Lloji janë të detyrueshme.', 'error');
+        return;
+      }
+
+      try {
+        await apiPost('upsertSacrament', payload);
+        setStatus('sacramentsStatus', 'Sakramenti u ruajt me sukses.', 'success');
+        await loadAllData();
+      } catch (error) {
+        setStatus('sacramentsStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    async function deleteSacrament() {
+      const id = el('sId').value.trim();
+      if (!id) {
+        setStatus('sacramentsStatus', 'Vendos ID e sakramentit për fshirje.', 'error');
+        return;
+      }
+      try {
+        await apiPost('deleteSacrament', { id });
+        setStatus('sacramentsStatus', 'Sakramenti u fshi.', 'success');
+        await loadAllData();
+      } catch (error) {
+        setStatus('sacramentsStatus', `Gabim: ${error.message}`, 'error');
+      }
+    }
+
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach((t) => t.classList.remove('active'));
+          document.querySelectorAll('.panel').forEach((p) => {
+            if (p.id !== 'panel-households' && p.id !== 'panel-members' && p.id !== 'panel-sacraments') return;
+            p.classList.remove('active');
+          });
+
+          tab.classList.add('active');
+          el(`panel-${tab.dataset.tab}`).classList.add('active');
+        });
+      });
+    }
+
+    function init() {
+      const savedUrl = localStorage.getItem(STORAGE_KEY);
+      if (savedUrl) {
+        el('apiBaseUrl').value = savedUrl;
+      }
+
+      setupTabs();
+
+      el('saveApiUrlBtn').addEventListener('click', () => {
+        const value = getApiBaseUrl();
+        localStorage.setItem(STORAGE_KEY, value);
+        setStatus('globalStatus', 'URL u ruajt lokalisht.', 'success');
+      });
+
+      el('loadAllBtn').addEventListener('click', loadAllData);
+      el('saveHouseholdBtn').addEventListener('click', saveHousehold);
+      el('deleteHouseholdBtn').addEventListener('click', deleteHousehold);
+      el('saveMemberBtn').addEventListener('click', saveMember);
+      el('deleteMemberBtn').addEventListener('click', deleteMember);
+      el('saveSacramentBtn').addEventListener('click', saveSacrament);
+      el('deleteSacramentBtn').addEventListener('click', deleteSacrament);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
